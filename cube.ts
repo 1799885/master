@@ -104,6 +104,7 @@ namespace cube {
         private _currImage: number
         private _imgs: Image[]
         private _faceColors: number[][]
+        private _faceFloodPoints: CubeCoordinate[][]
         private _faceLines: CubeLine[][]
         private _size: number
 
@@ -123,6 +124,7 @@ namespace cube {
             }   // for(face)
 
             this._faceLines = []
+            this._faceFloodPoints = []
             let cubeRules: CubeBuildRules = CUBE_BUILD_RULES[size]
             for (let face: number = 0; face < 3; face++) {
                 this._faceLines[face] = []
@@ -134,8 +136,8 @@ namespace cube {
                     let endX: number = beginX + size * faceRules.cubeDelta.x
                     let endY: number = beginY + size * faceRules.cubeDelta.y
                     let newLine: CubeLine = {
-                        begin: {x: beginX, y: beginY},
-                        end: {x: endX, y: endY}
+                        begin: {x: Math.round(beginX), y: Math.round(beginY)},
+                        end: {x: Math.round(endX), y: Math.round(endY)}
                     }
                     this._faceLines[face].push(newLine)
 
@@ -145,11 +147,24 @@ namespace cube {
                     endX = beginX + size * faceRules.rowDelta.x
                     endY = beginY + size * faceRules.rowDelta.y
                     newLine = {
-                        begin: {x: beginX, y: beginY},
-                        end: {x: endX, y: endY}
+                        begin: {x: Math.round(beginX), y: Math.round(beginY)},
+                        end: {x: Math.round(endX), y: Math.round(endY)}
                     }
                     this._faceLines[face].push(newLine)
                 }   // for (lineNo)
+
+                this._faceFloodPoints[face] = []
+                for (let row: number = 0; row < size; row++) {
+                    for (let col: number = 0; col < size; col++) {
+                        let index: number = row * size + col
+                        let x: number = faceRules.origin.x + row * faceRules.rowDelta.x + (col + 0.5) * faceRules.cubeDelta.x
+                        let y: number = faceRules.origin.y + (row + 0.5) * faceRules.rowDelta.y + col * faceRules.cubeDelta.y
+                        this._faceFloodPoints[face][index] = {
+                            x: Math.round(x),
+                            y: Math.round(y)
+                        }
+                    }   // for (col)
+                }   // for (row)
             }   // for (face)
         }   // constructor()
 
@@ -168,6 +183,12 @@ namespace cube {
                     currImage.drawLine(line.begin.x, line.begin.y,
                         line.end.x, line.end.y, LINE_COLOR)
                 }   // for (line)
+
+                for (let index: number = 0; index < this._size**2; index++) {
+                    let p: CubeCoordinate = this._faceFloodPoints[face][index]
+                    let c: number = this._faceColors[face][index]
+                    floodScanline(currImage, p.x, p.y, c)
+                }   // for (p)
             }   // for (face)
         }   // drawCube()
     }   // class CubeStatus
@@ -176,4 +197,44 @@ namespace cube {
         let toReturn: CubeStatus = new CubeStatus(size)
         return toReturn
     }   // buildCube()
+
+    // https://lodev.org/cgtutor/floodfill.html
+    function floodScanline(img: Image, x: number, y: number, c: number) {
+        let bgColor: number = img.getPixel(x, y)
+        if (bgColor === c) {
+            return
+        }   // if (img.getPixel(x, y) === c)
+
+        let x1: number
+        let spanAbove: boolean
+        let spanBelow: boolean
+        let stack: CubeCoordinate[] = [{ x: x, y: y }]
+        while (stack.length > 0) {
+            let p: CubeCoordinate = stack.pop()
+            x1 = p.x
+            while (x1 >= 0 && img.getPixel(x1, p.y) === bgColor) {
+                x1--
+            }   // while (x1 >= 0 ...)
+            x1++
+            spanAbove = false
+            spanBelow = false
+            while (x1 < img.width && img.getPixel(x1, p.y) === bgColor) {
+                img.setPixel(x1, p.y, c)
+                if (!spanAbove && p.y > 0 && img.getPixel(x1, p.y - 1) === bgColor) {
+                    stack.push({ x: x1, y: p.y - 1 })
+                    spanAbove = true
+                } else if (spanAbove && p.y > 0 && img.getPixel(x1, p.y - 1) !== bgColor) {
+                    spanAbove = false
+                }   // if (! spanAbove ...)
+
+                if (!spanBelow && p.y < img.height - 1 && img.getPixel(x1, p.y + 1) === bgColor) {
+                    stack.push({ x: x1, y: p.y + 1 })
+                    spanBelow = true
+                } else if (spanBelow && p.y < img.height - 1 && img.getPixel(x1, p.y + 1) !== bgColor) {
+                    spanBelow = false
+                }   // if (! spanBelow ...)
+                x1++
+            }   // while (x1 < img.width && ...)
+        }   // while (stack)
+    }   // floodScanline()
 }   // namespace cube
