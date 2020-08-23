@@ -24,13 +24,7 @@ enum Color {
 }   // enum Color
 */
 
-enum CubeRotation {
-    x,
-    y,
-    z
-}
-
-enum CubeSlice {
+enum CubeTransform {
     None, // Placeholder
     Front, // F
     Back, // B
@@ -38,6 +32,9 @@ enum CubeSlice {
     Down, // D
     Left, // L
     Right, // R
+    RotateX, // x
+    RotateY, // y
+    RotateZ, // z
     Middle, // M, between Left and Right, follows Left
     Equator, // E, between Up and Down, follows Down
     Standing, // S, between Front and Back, follows Front
@@ -46,8 +43,11 @@ enum CubeSlice {
     InsideUp, // u
     InsideDown, // d
     InsideLeft, // l
-    InsideRight // r
-}   // enum CubeSlice
+    InsideRight, // r
+    Shuffle,
+    Solve,
+    Reset
+}   // enum CubeTransform
 
 /**
  * Interfaces
@@ -63,7 +63,7 @@ interface CubeFace {
 }   // interface CubeFace
 
 interface CubeFillInfo {
-    face: CubeSlice
+    face: CubeTransform
     points: CubePoint[]
 }   // interface CubeFillInfo
 
@@ -83,12 +83,12 @@ interface CubeLocation {
 
 interface CubeMove {
     inverse: boolean
-    slice: CubeSlice
+    transform: CubeTransform
 }   // interface CubeMove
 
 interface CubeTranslation {
-    from: {slice: CubeSlice; location: number}
-    to: {slice: CubeSlice; location: number}
+    from: {transform: CubeTransform; location: number}
+    to: {transform: CubeTransform; location: number}
 }   // interface CubeTranlation
 
 interface CubePoint {
@@ -117,7 +117,7 @@ namespace cube {
             {
                 fill: [
                     {
-                        face: CubeSlice.Front,
+                        face: CubeTransform.Front,
                         points: [
                             {x: 7, y: 28},
                             {x: 21, y: 28},
@@ -130,7 +130,7 @@ namespace cube {
                             {x: 35, y: 56},
                         ]
                     }, {
-                        face: CubeSlice.Up,
+                        face: CubeTransform.Up,
                         points: [
                             {x: 21, y: 4},
                             {x: 35, y: 4},
@@ -143,7 +143,7 @@ namespace cube {
                             {x: 35, y: 18},
                         ]
                     }, {
-                        face: CubeSlice.Right,
+                        face: CubeTransform.Right,
                         points: [
                             {x: 45, y: 25},
                             {x: 49, y: 18},
@@ -196,26 +196,26 @@ namespace cube {
             [],
             // "Front" moves
             [
-                {from: {slice: CubeSlice.Front, location: 0}, to: {slice: CubeSlice.Front, location: 2}},
-                {from: {slice: CubeSlice.Front, location: 1}, to: {slice: CubeSlice.Front, location: 5}},
-                {from: {slice: CubeSlice.Front, location: 2}, to: {slice: CubeSlice.Front, location: 8}},
-                {from: {slice: CubeSlice.Front, location: 3}, to: {slice: CubeSlice.Front, location: 1}},
-                {from: {slice: CubeSlice.Front, location: 5}, to: {slice: CubeSlice.Front, location: 7}},
-                {from: {slice: CubeSlice.Front, location: 6}, to: {slice: CubeSlice.Front, location: 0}},
-                {from: {slice: CubeSlice.Front, location: 7}, to: {slice: CubeSlice.Front, location: 3}},
-                {from: {slice: CubeSlice.Front, location: 8}, to: {slice: CubeSlice.Front, location: 6}},
-                {from: {slice: CubeSlice.Up, location: 6}, to: {slice: CubeSlice.Right, location: 0}},
-                {from: {slice: CubeSlice.Up, location: 7}, to: {slice: CubeSlice.Right, location: 3}},
-                {from: {slice: CubeSlice.Up, location: 8}, to: {slice: CubeSlice.Right, location: 6}},
-                {from: {slice: CubeSlice.Right, location: 0}, to: {slice: CubeSlice.Down, location: 6}},
-                {from: {slice: CubeSlice.Right, location: 3}, to: {slice: CubeSlice.Down, location: 7}},
-                {from: {slice: CubeSlice.Right, location: 6}, to: {slice: CubeSlice.Down, location: 8}},
-                {from: {slice: CubeSlice.Down, location: 6}, to: {slice: CubeSlice.Left, location: 8}},
-                {from: {slice: CubeSlice.Down, location: 7}, to: {slice: CubeSlice.Left, location: 5}},
-                {from: {slice: CubeSlice.Down, location: 8}, to: {slice: CubeSlice.Left, location: 2}},
-                {from: {slice: CubeSlice.Left, location: 2}, to: {slice: CubeSlice.Up, location: 8}},
-                {from: {slice: CubeSlice.Left, location: 5}, to: {slice: CubeSlice.Up, location: 7}},
-                {from: {slice: CubeSlice.Left, location: 8}, to: {slice: CubeSlice.Up, location: 6}},
+                {from: {transform: CubeTransform.Front, location: 0}, to: {transform: CubeTransform.Front, location: 2}},
+                {from: {transform: CubeTransform.Front, location: 1}, to: {transform: CubeTransform.Front, location: 5}},
+                {from: {transform: CubeTransform.Front, location: 2}, to: {transform: CubeTransform.Front, location: 8}},
+                {from: {transform: CubeTransform.Front, location: 3}, to: {transform: CubeTransform.Front, location: 1}},
+                {from: {transform: CubeTransform.Front, location: 5}, to: {transform: CubeTransform.Front, location: 7}},
+                {from: {transform: CubeTransform.Front, location: 6}, to: {transform: CubeTransform.Front, location: 0}},
+                {from: {transform: CubeTransform.Front, location: 7}, to: {transform: CubeTransform.Front, location: 3}},
+                {from: {transform: CubeTransform.Front, location: 8}, to: {transform: CubeTransform.Front, location: 6}},
+                {from: {transform: CubeTransform.Up, location: 6}, to: {transform: CubeTransform.Right, location: 0}},
+                {from: {transform: CubeTransform.Up, location: 7}, to: {transform: CubeTransform.Right, location: 3}},
+                {from: {transform: CubeTransform.Up, location: 8}, to: {transform: CubeTransform.Right, location: 6}},
+                {from: {transform: CubeTransform.Right, location: 0}, to: {transform: CubeTransform.Down, location: 6}},
+                {from: {transform: CubeTransform.Right, location: 3}, to: {transform: CubeTransform.Down, location: 7}},
+                {from: {transform: CubeTransform.Right, location: 6}, to: {transform: CubeTransform.Down, location: 8}},
+                {from: {transform: CubeTransform.Down, location: 6}, to: {transform: CubeTransform.Left, location: 8}},
+                {from: {transform: CubeTransform.Down, location: 7}, to: {transform: CubeTransform.Left, location: 5}},
+                {from: {transform: CubeTransform.Down, location: 8}, to: {transform: CubeTransform.Left, location: 2}},
+                {from: {transform: CubeTransform.Left, location: 2}, to: {transform: CubeTransform.Up, location: 8}},
+                {from: {transform: CubeTransform.Left, location: 5}, to: {transform: CubeTransform.Up, location: 7}},
+                {from: {transform: CubeTransform.Left, location: 8}, to: {transform: CubeTransform.Up, location: 6}},
             ],
             // Back moves
             [],
@@ -226,6 +226,12 @@ namespace cube {
             // Left moves
             [],
             // Right moves
+            [],
+            // Rotate X moves
+            [],
+            // Rotate Y moves
+            [], 
+            // Rotate Z moves
             [],
             // Middle moves
             [],
@@ -244,7 +250,7 @@ namespace cube {
         'y',
         'z'
     ]
-    export const SLICE_NAMES: string[] = [
+    export const MOVE_NAMES: string[] = [
         'None',
         'Front',
         'Back',
@@ -252,24 +258,33 @@ namespace cube {
         'Down',
         'Left',
         'Right',
+        'Rotate X',
+        'Rotate Y',
+        'Rotate Z',
         'Middle',
         'Equator',
-        'Standing'
+        'Standing',
+        'Shuffle',
+        'Solve',
+        'Reset'
     ]
 
     export class Cube {
         private _currCube: number
         private _currImage: number
         private _cubes: CubeFace[][]
-        private _imgs: Image[]
+        private _imgFace: Image[]
+        private _imgIso: Image[]
         private _size: number
+        private _spriteFace: Sprite[]
+        private _spriteIso: Sprite
 
         constructor(size: number) {
             this._currCube = 0
             this._cubes = []
             for (let i: number = 0; i <= 1; i++) {
                 this._cubes[i] = []
-                for (let face: CubeSlice = CubeSlice.Front; face <= CubeSlice.Right; face++) {
+                for (let face: CubeTransform = CubeTransform.Front; face <= CubeTransform.Right; face++) {
                     this._cubes[i][face] = {locations: []}
                     for (let loc: number = 0; loc < size**2; loc++) {
                         this._cubes[i][face].locations[loc] = {color: COLORS[face]}
@@ -278,26 +293,36 @@ namespace cube {
             }   // for (i)
 
             this._currImage = 0
-            this._imgs = [
+            this._imgIso = [
                 image.create(ISO_SPRITE_SIZE, ISO_SPRITE_SIZE),
                 image.create(ISO_SPRITE_SIZE, ISO_SPRITE_SIZE)
             ]
             this._size = size
+
+            this._spriteIso = sprites.create(this._imgIso[0])
+            this._spriteIso.setFlag(SpriteFlag.Ghost, true)
+            this._spriteIso.x = ISO_SPRITE_SIZE / 2 + 10
+            this._spriteIso.y = scene.screenHeight() - ISO_SPRITE_SIZE / 2 - 10
+            this.drawCube({transform: CubeTransform.None, inverse: false})
         }   // constructor()
 
-        public get image(): Image {
-            return this._imgs[this._currImage]
-        }   // get image
+        public get isoImage(): Image {
+            return this._imgIso[this._currImage]
+        }   // get isoImage
+
+        public get isoSprite(): Sprite {
+            return this._spriteIso
+        }   // get isoSprite
 
         public get size(): number {
             return this._size
         }   // get size
 
         public drawCube(move: CubeMove): void {
-            let currImage: Image = this._imgs[1 - this._currImage]
+            let currImage: Image = this._imgIso[1 - this._currImage]
             let currCube: CubeFace[] = this._cubes[this._currCube]
-            let lines: CubeLine[] = CUBE_DRAW_INFO[this._size][move.slice].lines
-            let fillInfo: CubeFillInfo[] = CUBE_DRAW_INFO[this._size][move.slice].fill
+            let lines: CubeLine[] = CUBE_DRAW_INFO[this._size][move.transform].lines
+            let fillInfo: CubeFillInfo[] = CUBE_DRAW_INFO[this._size][move.transform].fill
             currImage.fill(0)
             for (let line of lines) {
                 currImage.drawLine(line.begin.x, line.begin.y, line.end.x, line.end.y, LINE_COLOR)
@@ -310,30 +335,40 @@ namespace cube {
                 }   // for (p)
             }   // for (fi)
             this._currImage = 1 - this._currImage
+            this._spriteIso.setImage(this._imgIso[this._currImage])
         }   // drawCube()
+
+        public faceImage(face: CubeTransform): Image {
+            return this._imgFace[face]
+        }   // faceImage()
+
+        public faceSprite(face: CubeTransform): Sprite {
+            return this._spriteFace[face]
+        }   // faceSprite()
 
         public move(move: CubeMove): void {
             let currCube: CubeFace[] = this._cubes[this._currCube]
             let newCube: CubeFace[] = this._cubes[1 - this._currCube]
 
             // Duplicate current cube
-            for (let f: CubeSlice = CubeSlice.Front; f <= CubeSlice.Right; f++) {
+            for (let f: CubeTransform = CubeTransform.Front; f <= CubeTransform.Right; f++) {
                 for (let i: number = 0; i < this._size**2; i++) {
                     newCube[f].locations[i].color = currCube[f].locations[i].color
                 }   // for (i)
             }   // for (f)
 
-            for (let t of CUBE_MOVES[this._size][move.slice]) {
+            for (let t of CUBE_MOVES[this._size][move.transform]) {
                 if (move.inverse) {
-                    newCube[t.from.slice].locations[t.from.location].color =
-                        currCube[t.to.slice].locations[t.to.location].color
+                    newCube[t.from.transform].locations[t.from.location].color =
+                        currCube[t.to.transform].locations[t.to.location].color
                 } else {
-                    newCube[t.to.slice].locations[t.to.location].color =
-                        currCube[t.from.slice].locations[t.from.location].color
+                    newCube[t.to.transform].locations[t.to.location].color =
+                        currCube[t.from.transform].locations[t.from.location].color
                 }   // if (move.inverse)
             }   // for (t)
 
             this._currCube = 1 - this._currCube
+            this.drawCube({transform: CubeTransform.None, inverse: false})
         }   // move()
     }   // class Cube
 
