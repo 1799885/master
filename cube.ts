@@ -1,3 +1,7 @@
+/**
+ * Enumerations
+ */
+
 /*
 // Standard palette
 enum Color {
@@ -20,152 +24,265 @@ enum Color {
 }   // enum Color
 */
 
-enum CubeSlices {
+enum CubeRotation {
+    x,
+    y,
+    z
+}
+
+enum CubeSlice {
+    None, // Placeholder
     Front, // F
-    Up, // U
-    Right, // R
     Back, // B
+    Up, // U
     Down, // D
     Left, // L
+    Right, // R
     Middle, // M, between Left and Right, follows Left
     Equator, // E, between Up and Down, follows Down
     Standing, // S, between Front and Back, follows Front
     InsideFront, // f
-    InsideUp, // u
-    InsideRight, // r
     InsideBack, // b
+    InsideUp, // u
     InsideDown, // d
-    InsideLeft // l
-}   // enum CubeSlices
+    InsideLeft, // l
+    InsideRight // r
+}   // enum CubeSlice
 
-// Used to build the vertices for the visual representations
-interface CubeBuildRules {
-    cubesPerFace: number
-    faceBuildRules: CubeFaceBuildRules[]
-}   // interface CubeBuildRules
+/**
+ * Interfaces
+ */
 
-interface CubeCoordinate {
-    x: number
-    y: number
-}   // interface CubeCoordinate
+interface CubeDrawInfo {
+    fill: CubeFillInfo[]
+    lines: CubeLine[]
+}   // interface CubeDrawInfo
 
-interface CubeFaceBuildRules {
-    origin: CubeCoordinate
-    cubeDelta: CubeCoordinate // change in coordinates for each cube
-    rowDelta: CubeCoordinate // change in starting coordinates for each row
-}   // interface CubeFaceBuildRules
+interface CubeFace {
+    locations: CubeLocation[]
+}   // interface CubeFace
+
+interface CubeFillInfo {
+    face: CubeSlice
+    points: CubePoint[]
+}   // interface CubeFillInfo
+
+interface CubeFloodPoint {
+    color: number[][] // First index is a CubeFace; second index is a location index
+    point: CubePoint
+}   // interface CubeFloodPoint
 
 interface CubeLine {
-    begin: CubeCoordinate
-    end: CubeCoordinate
+    begin: CubePoint
+    end: CubePoint
 }   // interface CubeLine
 
+interface CubeLocation {
+    color: number
+}   // interface CubeLocation
+
+interface CubeMove {
+    inverse: boolean
+    slice: CubeSlice
+}   // interface CubeMove
+
+interface CubeTranslation {
+    from: {slice: CubeSlice; location: number}
+    to: {slice: CubeSlice; location: number}
+}   // interface CubeTranlation
+
+interface CubePoint {
+    x: number
+    y: number
+}   // interface CubePoint
+
 namespace cube {
-    const LINE_COLOR: number = 12 // Wine
-    const SPRITE_SIZE: number = 64
-    const CUBE_BUILD_RULES: CubeBuildRules[] =
-    [
-        null, // "zero" cube
-        null, // "1x1" cube
-        null, // "2x2" or junior cube
-        {
-            cubesPerFace: 3,
-            faceBuildRules: [
-                {
-                    origin: {x: 0, y: 21},
-                    cubeDelta: {x: 14, y: 0},
-                    rowDelta: {x: 0, y: 14}
-                }, // Front
-                {
-                    origin: {x: 14, y: 0},
-                    cubeDelta: {x: 14, y: 0},
-                    rowDelta: {x: -14 / 3, y: 7}
-                }, // Up
-                {
-                    origin: {x: 42, y: 21},
-                    cubeDelta: {x: 14 / 3, y: -7},
-                    rowDelta: {x: 0, y: 14}
-                } // Right
-            ]
-        }, // "3x3" or standard cube
-        null // "4x4", advanced, or "revenge" cube
-    ]
-
-    const CubeColors: number[] = [
+    const COLORS: number[] = [
+        15, // None = Black
         8, // Front = Blue
-        1, // Up = White
-        4, // Right = Orange
         7, // Back = Green
+        1, // Up = White
         5, // Down = Yellow
-        2 // Left = Red
+        2, // Left = Red
+        4  // Right = Orange
+    ]
+    const CUBE_DRAW_INFO: CubeDrawInfo[][] = [
+        [], // "zero" cube
+        [], // "one" cube
+        // 2x2 or junior cube
+        [],
+        // 3x3 or standard cube
+        [
+            // None
+            {
+                fill: [
+                    {
+                        face: CubeSlice.Front,
+                        points: [
+                            {x: 7, y: 28},
+                            {x: 21, y: 28},
+                            {x: 35, y: 28},
+                            {x: 7, y: 42},
+                            {x: 21, y: 42},
+                            {x: 35, y: 42},
+                            {x: 7, y: 56},
+                            {x: 21, y: 56},
+                            {x: 35, y: 56},
+                        ]
+                    }, {
+                        face: CubeSlice.Up,
+                        points: [
+                            {x: 21, y: 4},
+                            {x: 35, y: 4},
+                            {x: 49, y: 4},
+                            {x: 14, y: 10},
+                            {x: 28, y: 10},
+                            {x: 42, y: 10},
+                            {x: 7, y: 18},
+                            {x: 21, y: 18},
+                            {x: 35, y: 18},
+                        ]
+                    }, {
+                        face: CubeSlice.Right,
+                        points: [
+                            {x: 45, y: 25},
+                            {x: 49, y: 18},
+                            {x: 53, y: 10},
+                            {x: 45, y: 39},
+                            {x: 49, y: 32},
+                            {x: 53, y: 25},
+                            {x: 45, y: 53},
+                            {x: 49, y: 46},
+                            {x: 53, y: 39},
+                        ]
+                    }
+                ],
+                lines: [
+                    {begin: {x: 0, y: 21}, end: {x: 42, y: 21}},
+                    {begin: {x: 0, y: 35}, end: {x: 42, y: 35}},
+                    {begin: {x: 0, y: 49}, end: {x: 42, y: 49}},
+                    {begin: {x: 0, y: 63}, end: {x: 42, y: 63}},
+                    {begin: {x: 0, y: 21}, end: {x: 0, y: 63}},
+                    {begin: {x: 14, y: 21}, end: {x: 14, y: 63}},
+                    {begin: {x: 28, y: 21}, end: {x: 28, y: 63}},
+                    {begin: {x: 42, y: 21}, end: {x: 42, y: 63}},
+                    {begin: {x: 14, y: 0}, end: {x: 56, y: 0}},
+                    {begin: {x: 14, y: 0}, end: {x: 56, y: 0}},
+                    {begin: {x: 9, y: 7}, end: {x: 51, y: 7}},
+                    {begin: {x: 5, y: 14}, end: {x: 47, y: 14}},
+                    {begin: {x: 14, y: 0}, end: {x: 0, y: 21}},
+                    {begin: {x: 28, y: 0}, end: {x: 14, y: 21}},
+                    {begin: {x: 42, y: 0}, end: {x: 28, y: 21}},
+                    {begin: {x: 56, y: 0}, end: {x: 42, y: 21}},
+                    {begin: {x: 47, y: 14}, end: {x: 47, y: 56}},
+                    {begin: {x: 51, y: 7}, end: {x: 51, y: 49}},
+                    {begin: {x: 56, y: 0}, end: {x: 56, y: 42}},
+                    {begin: {x: 42, y: 35}, end: {x: 56, y: 14}},
+                    {begin: {x: 42, y: 49}, end: {x: 56, y: 28}},
+                    {begin: {x: 42, y: 63}, end: {x: 56, y: 42}}
+                ]
+            }
+        ],
+        // 4x4, advanced, or revenge cube
+        []
+    ]
+    const CUBE_MOVES: CubeTranslation[][][] = [
+        [[]], // "zero" cube
+        [[]], // "one" cube
+        [[]], // 2x2 or junior cube
+        // 3x3 or stadard cube
+        [
+            // "None" moves
+            [],
+            // "Front" moves
+            [
+                {from: {slice: CubeSlice.Front, location: 0}, to: {slice: CubeSlice.Front, location: 2}},
+                {from: {slice: CubeSlice.Front, location: 1}, to: {slice: CubeSlice.Front, location: 5}},
+                {from: {slice: CubeSlice.Front, location: 2}, to: {slice: CubeSlice.Front, location: 8}},
+                {from: {slice: CubeSlice.Front, location: 3}, to: {slice: CubeSlice.Front, location: 1}},
+                {from: {slice: CubeSlice.Front, location: 5}, to: {slice: CubeSlice.Front, location: 7}},
+                {from: {slice: CubeSlice.Front, location: 6}, to: {slice: CubeSlice.Front, location: 0}},
+                {from: {slice: CubeSlice.Front, location: 7}, to: {slice: CubeSlice.Front, location: 3}},
+                {from: {slice: CubeSlice.Front, location: 8}, to: {slice: CubeSlice.Front, location: 6}},
+                {from: {slice: CubeSlice.Up, location: 6}, to: {slice: CubeSlice.Right, location: 0}},
+                {from: {slice: CubeSlice.Up, location: 7}, to: {slice: CubeSlice.Right, location: 3}},
+                {from: {slice: CubeSlice.Up, location: 8}, to: {slice: CubeSlice.Right, location: 6}},
+                {from: {slice: CubeSlice.Right, location: 0}, to: {slice: CubeSlice.Down, location: 6}},
+                {from: {slice: CubeSlice.Right, location: 3}, to: {slice: CubeSlice.Down, location: 7}},
+                {from: {slice: CubeSlice.Right, location: 6}, to: {slice: CubeSlice.Down, location: 8}},
+                {from: {slice: CubeSlice.Down, location: 6}, to: {slice: CubeSlice.Left, location: 8}},
+                {from: {slice: CubeSlice.Down, location: 7}, to: {slice: CubeSlice.Left, location: 5}},
+                {from: {slice: CubeSlice.Down, location: 8}, to: {slice: CubeSlice.Left, location: 2}},
+                {from: {slice: CubeSlice.Left, location: 2}, to: {slice: CubeSlice.Up, location: 8}},
+                {from: {slice: CubeSlice.Left, location: 5}, to: {slice: CubeSlice.Up, location: 7}},
+                {from: {slice: CubeSlice.Left, location: 8}, to: {slice: CubeSlice.Up, location: 6}},
+            ],
+            // Back moves
+            [],
+            // Up moves
+            [],
+            // Down moves
+            [],
+            // Left moves
+            [],
+            // Right moves
+            [],
+            // Middle moves
+            [],
+            // Equator moves
+            [],
+            // Standing moves
+            []
+        ],
+        [[]]  // 4x4, advanced, or revenge cube
+    ]
+    export const ISO_SPRITE_SIZE: number = 64
+    export const FACE_SPRITE_SIZE: number = 16
+    const LINE_COLOR: number = 12 // Wine
+    export const ROTATE_NAMES: string[] = [
+        'x',
+        'y',
+        'z'
+    ]
+    export const SLICE_NAMES: string[] = [
+        'None',
+        'Front',
+        'Back',
+        'Up',
+        'Down',
+        'Left',
+        'Right',
+        'Middle',
+        'Equator',
+        'Standing'
     ]
 
-    export class CubeStatus {
+    export class Cube {
+        private _currCube: number
         private _currImage: number
+        private _cubes: CubeFace[][]
         private _imgs: Image[]
-        private _faceColors: number[][]
-        private _faceFloodPoints: CubeCoordinate[][]
-        private _faceLines: CubeLine[][]
         private _size: number
 
         constructor(size: number) {
+            this._currCube = 0
+            this._cubes = []
+            for (let i: number = 0; i <= 1; i++) {
+                this._cubes[i] = []
+                for (let face: CubeSlice = CubeSlice.Front; face <= CubeSlice.Right; face++) {
+                    this._cubes[i][face] = {locations: []}
+                    for (let loc: number = 0; loc < size**2; loc++) {
+                        this._cubes[i][face].locations[loc] = {color: COLORS[face]}
+                    }   // for (loc)
+                }   // for (face)
+            }   // for (i)
+
             this._currImage = 0
             this._imgs = [
-                image.create(SPRITE_SIZE, SPRITE_SIZE),
-                image.create(SPRITE_SIZE, SPRITE_SIZE)
+                image.create(ISO_SPRITE_SIZE, ISO_SPRITE_SIZE),
+                image.create(ISO_SPRITE_SIZE, ISO_SPRITE_SIZE)
             ]
             this._size = size
-            this._faceColors = []
-            for (let face: number = 0; face < 6; face++) {
-                this._faceColors[face] = []
-                for (let cube: number = 0; cube < size**2; cube++) {
-                    this._faceColors[face][cube] = CubeColors[face]
-                }   // for (cube)
-            }   // for(face)
-
-            this._faceLines = []
-            this._faceFloodPoints = []
-            let cubeRules: CubeBuildRules = CUBE_BUILD_RULES[size]
-            for (let face: number = 0; face < 3; face++) {
-                this._faceLines[face] = []
-                let faceRules: CubeFaceBuildRules = cubeRules.faceBuildRules[face]
-                for (let lineNo: number = 0; lineNo <= size; lineNo++) {
-                    // Horizontal line
-                    let beginX: number = faceRules.origin.x + lineNo * faceRules.rowDelta.x
-                    let beginY: number = faceRules.origin.y + lineNo * faceRules.rowDelta.y
-                    let endX: number = beginX + size * faceRules.cubeDelta.x
-                    let endY: number = beginY + size * faceRules.cubeDelta.y
-                    let newLine: CubeLine = {
-                        begin: {x: Math.round(beginX), y: Math.round(beginY)},
-                        end: {x: Math.round(endX), y: Math.round(endY)}
-                    }
-                    this._faceLines[face].push(newLine)
-
-                    // Vertical line
-                    beginX = faceRules.origin.x + lineNo * faceRules.cubeDelta.x
-                    beginY = faceRules.origin.y + lineNo * faceRules.cubeDelta.y
-                    endX = beginX + size * faceRules.rowDelta.x
-                    endY = beginY + size * faceRules.rowDelta.y
-                    newLine = {
-                        begin: {x: Math.round(beginX), y: Math.round(beginY)},
-                        end: {x: Math.round(endX), y: Math.round(endY)}
-                    }
-                    this._faceLines[face].push(newLine)
-                }   // for (lineNo)
-
-                this._faceFloodPoints[face] = []
-                for (let row: number = 0; row < size; row++) {
-                    for (let col: number = 0; col < size; col++) {
-                        let index: number = row * size + col
-                        let x: number = faceRules.origin.x + row * faceRules.rowDelta.x + (col + 0.5) * faceRules.cubeDelta.x
-                        let y: number = faceRules.origin.y + (row + 0.5) * faceRules.rowDelta.y + col * faceRules.cubeDelta.y
-                        this._faceFloodPoints[face][index] = {
-                            x: Math.round(x),
-                            y: Math.round(y)
-                        }
-                    }   // for (col)
-                }   // for (row)
-            }   // for (face)
         }   // constructor()
 
         public get image(): Image {
@@ -176,25 +293,52 @@ namespace cube {
             return this._size
         }   // get size
 
-        public drawCube(): void {
-            let currImage: Image = this._imgs[this._currImage]
-            for (let face: number = 0; face < 3; face++) {
-                for (let line of this._faceLines[face]) {
-                    currImage.drawLine(line.begin.x, line.begin.y,
-                        line.end.x, line.end.y, LINE_COLOR)
-                }   // for (line)
-
-                for (let index: number = 0; index < this._size**2; index++) {
-                    let p: CubeCoordinate = this._faceFloodPoints[face][index]
-                    let c: number = this._faceColors[face][index]
-                    floodScanline(currImage, p.x, p.y, c)
+        public drawCube(move: CubeMove): void {
+            let currImage: Image = this._imgs[1 - this._currImage]
+            let currCube: CubeFace[] = this._cubes[this._currCube]
+            let lines: CubeLine[] = CUBE_DRAW_INFO[this._size][move.slice].lines
+            let fillInfo: CubeFillInfo[] = CUBE_DRAW_INFO[this._size][move.slice].fill
+            currImage.fill(0)
+            for (let line of lines) {
+                currImage.drawLine(line.begin.x, line.begin.y, line.end.x, line.end.y, LINE_COLOR)
+            }   // for (line)
+            for (let fi of fillInfo) {
+                let faceColors: CubeLocation[] = currCube[fi.face].locations
+                for (let i: number = 0; i < this._size**2; i++) {
+                    let p: CubePoint = fi.points[i]
+                    floodScanline(currImage, p.x, p.y, faceColors[i].color)
                 }   // for (p)
-            }   // for (face)
+            }   // for (fi)
+            this._currImage = 1 - this._currImage
         }   // drawCube()
-    }   // class CubeStatus
 
-    export function buildCube(size: number): CubeStatus {
-        let toReturn: CubeStatus = new CubeStatus(size)
+        public move(move: CubeMove): void {
+            let currCube: CubeFace[] = this._cubes[this._currCube]
+            let newCube: CubeFace[] = this._cubes[1 - this._currCube]
+
+            // Duplicate current cube
+            for (let f: CubeSlice = CubeSlice.Front; f <= CubeSlice.Right; f++) {
+                for (let i: number = 0; i < this._size**2; i++) {
+                    newCube[f].locations[i].color = currCube[f].locations[i].color
+                }   // for (i)
+            }   // for (f)
+
+            for (let t of CUBE_MOVES[this._size][move.slice]) {
+                if (move.inverse) {
+                    newCube[t.from.slice].locations[t.from.location].color =
+                        currCube[t.to.slice].locations[t.to.location].color
+                } else {
+                    newCube[t.to.slice].locations[t.to.location].color =
+                        currCube[t.from.slice].locations[t.from.location].color
+                }   // if (move.inverse)
+            }   // for (t)
+
+            this._currCube = 1 - this._currCube
+        }   // move()
+    }   // class Cube
+
+    export function buildCube(size: number): Cube {
+        let toReturn: Cube = new Cube(size)
         return toReturn
     }   // buildCube()
 
@@ -208,9 +352,9 @@ namespace cube {
         let x1: number
         let spanAbove: boolean
         let spanBelow: boolean
-        let stack: CubeCoordinate[] = [{ x: x, y: y }]
+        let stack: CubePoint[] = [{ x: x, y: y }]
         while (stack.length > 0) {
-            let p: CubeCoordinate = stack.pop()
+            let p: CubePoint = stack.pop()
             x1 = p.x
             while (x1 >= 0 && img.getPixel(x1, p.y) === bgColor) {
                 x1--
