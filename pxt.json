@@ -1,6 +1,5 @@
 {
-    "name": "rubiks-cube",
-    "version": "0.1.0",
+    "name": "Rubik's Cube",
     "dependencies": {
         "device": "*"
     },
