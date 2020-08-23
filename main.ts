@@ -3,6 +3,7 @@ moveImage = image.create(scene.screenWidth(), 8)
 let moveSprite = sprites.create(moveImage, 0)
 moveSprite.x = scene.screenWidth() / 2
 moveSprite.y = 4
+moveSprite.setFlag(SpriteFlag.Ghost, true)
 
 let currMove: CubeTransform = CubeTransform.Front
 writeCurrMove()
@@ -36,5 +37,5 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function() {
 function writeCurrMove () {
     moveImage.fill(0)
     let m: string = cube.MOVE_NAMES[currMove]
-    moveImage.printCenter(m, 1)
+    moveImage.printCenter(m, 1, 5, image.font8)
 }   // writeCurrMove()

@@ -97,6 +97,8 @@ interface CubePoint {
 }   // interface CubePoint
 
 namespace cube {
+    const COLOR_LINE: number = 12 // Wine
+    const COLOR_TEXT: number = 9 // Light Blue
     const COLORS: number[] = [
         15, // None = Black
         8, // Front = Blue
@@ -242,14 +244,8 @@ namespace cube {
         ],
         [[]]  // 4x4, advanced, or revenge cube
     ]
+    export const FACE_SPRITE_SIZE: number = 32
     export const ISO_SPRITE_SIZE: number = 64
-    export const FACE_SPRITE_SIZE: number = 16
-    const LINE_COLOR: number = 12 // Wine
-    export const ROTATE_NAMES: string[] = [
-        'x',
-        'y',
-        'z'
-    ]
     export const MOVE_NAMES: string[] = [
         'None',
         'Front',
@@ -268,6 +264,27 @@ namespace cube {
         'Solve',
         'Reset'
     ]
+    export const ROTATE_NAMES: string[] = [
+        'x',
+        'y',
+        'z'
+    ]
+    export const SPRITE_COORDS: CubePoint[] = [
+        // ISO Sprite
+        {x: ISO_SPRITE_SIZE / 2 + 10, y: scene.screenHeight() - ISO_SPRITE_SIZE / 2 - 10},
+        // Front Sprite
+        {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 2) * 1.5 - 5, y: FACE_SPRITE_SIZE / 2 + 14},
+        // Back Sprite
+        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 2 - 5, y: FACE_SPRITE_SIZE / 2 + 14},
+        // Up sprite
+        {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 2) * 1.5 - 5, y: (FACE_SPRITE_SIZE + 2) * 1.5 + 14},
+        // Down sprite
+        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 2 - 5, y: (FACE_SPRITE_SIZE + 2) * 1.5 + 14},
+        // Left sprite
+        {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 2) * 1.5 - 5, y: (FACE_SPRITE_SIZE + 2) * 2.5 + 14},
+        // Right sprite
+        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 2 - 5, y: (FACE_SPRITE_SIZE + 2) * 2.5 + 14}
+    ]
 
     export class Cube {
         private _currCube: number
@@ -282,6 +299,8 @@ namespace cube {
         constructor(size: number) {
             this._currCube = 0
             this._cubes = []
+            this._imgFace = []
+            this._spriteFace = []
             for (let i: number = 0; i <= 1; i++) {
                 this._cubes[i] = []
                 for (let face: CubeTransform = CubeTransform.Front; face <= CubeTransform.Right; face++) {
@@ -289,6 +308,12 @@ namespace cube {
                     for (let loc: number = 0; loc < size**2; loc++) {
                         this._cubes[i][face].locations[loc] = {color: COLORS[face]}
                     }   // for (loc)
+
+                    this._imgFace[face] = image.create(FACE_SPRITE_SIZE, FACE_SPRITE_SIZE)
+                    this._spriteFace[face] = sprites.create(this._imgFace[face])
+                    this._spriteFace[face].setFlag(SpriteFlag.Ghost, true)
+                    this._spriteFace[face].x = SPRITE_COORDS[face].x
+                    this._spriteFace[face].y = SPRITE_COORDS[face].y
                 }   // for (face)
             }   // for (i)
 
@@ -301,8 +326,8 @@ namespace cube {
 
             this._spriteIso = sprites.create(this._imgIso[0])
             this._spriteIso.setFlag(SpriteFlag.Ghost, true)
-            this._spriteIso.x = ISO_SPRITE_SIZE / 2 + 10
-            this._spriteIso.y = scene.screenHeight() - ISO_SPRITE_SIZE / 2 - 10
+            this._spriteIso.x = SPRITE_COORDS[0].x
+            this._spriteIso.y = SPRITE_COORDS[0].y
             this.drawCube({transform: CubeTransform.None, inverse: false})
         }   // constructor()
 
@@ -325,7 +350,7 @@ namespace cube {
             let fillInfo: CubeFillInfo[] = CUBE_DRAW_INFO[this._size][move.transform].fill
             currImage.fill(0)
             for (let line of lines) {
-                currImage.drawLine(line.begin.x, line.begin.y, line.end.x, line.end.y, LINE_COLOR)
+                currImage.drawLine(line.begin.x, line.begin.y, line.end.x, line.end.y, COLOR_LINE)
             }   // for (line)
             for (let fi of fillInfo) {
                 let faceColors: CubeLocation[] = currCube[fi.face].locations
@@ -336,6 +361,10 @@ namespace cube {
             }   // for (fi)
             this._currImage = 1 - this._currImage
             this._spriteIso.setImage(this._imgIso[this._currImage])
+
+            for (let face: CubeTransform = CubeTransform.Front; face <= CubeTransform.Right; face++) {
+                this.drawFace(face)
+            }   // for (face)
         }   // drawCube()
 
         public faceImage(face: CubeTransform): Image {
@@ -370,6 +399,28 @@ namespace cube {
             this._currCube = 1 - this._currCube
             this.drawCube({transform: CubeTransform.None, inverse: false})
         }   // move()
+
+        private drawFace(face: CubeTransform) {
+            let img: Image = this._imgFace[face]
+            let locs: CubeLocation[] = this._cubes[this._currCube][face].locations
+            img.fill(0)
+            img.printCenter(MOVE_NAMES[face], FACE_SPRITE_SIZE - 5, COLOR_TEXT, image.font5)
+            img.drawRect(2, 0, FACE_SPRITE_SIZE - 5, FACE_SPRITE_SIZE - 5, COLOR_LINE)
+            let boxWidth: number = (FACE_SPRITE_SIZE - 5) / this._size
+            for (let i: number = 1; i < this._size; i++) {
+                img.drawLine(2 + Math.round(boxWidth * i), 0, 2 + Math.round(boxWidth * i), FACE_SPRITE_SIZE - 5, COLOR_LINE)
+                img.drawLine(2, Math.round(boxWidth * i), FACE_SPRITE_SIZE - 4, Math.round(boxWidth * i), COLOR_LINE)
+            }   // for (i)
+
+            for (let i: number = 0; i < this._size**2; i++) {
+                let c: number = locs[i].color
+                let row: number = Math.idiv(i, this._size)
+                let col: number = i % this._size
+                let x: number = 2 + boxWidth / 2 + boxWidth * col
+                let y: number = boxWidth / 2 + boxWidth * row
+                floodScanline(img, x, y, c)
+            }   // for (i)
+        }   // drawFace()
     }   // class Cube
 
     export function buildCube(size: number): Cube {
