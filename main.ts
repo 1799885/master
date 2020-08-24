@@ -14,14 +14,14 @@ let myCube: cube.Cube = cube.buildCube(3)
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     currMove += -1
     if (currMove == CubeTransform.None) {
-        currMove = CubeTransform.Right
+        currMove = CubeTransform.Standing
     }  // if (currMove === CubeTransform.None)
     writeCurrMove()
 })
 
 controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     currMove += 1
-    if (currMove == CubeTransform.RotateX) {
+    if (currMove == CubeTransform.InsideFront) {
         currMove = CubeTransform.Front
     }  // if (currMove === CubeTransform.InsideFront)
     writeCurrMove()
@@ -39,6 +39,10 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function() {
 
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     game.showLongText(moves, DialogLayout.Center)
+})
+
+controller.B.onEvent(ControllerButtonEvent.Pressed, function(){
+    myCube.move({transform: CubeTransform.Shuffle, inverse: false})
 })
 
 function addCurrMove(inverse: boolean): void {

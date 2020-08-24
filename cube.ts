@@ -335,17 +335,58 @@ namespace cube {
                 {from: {transform: CubeTransform.Down, location: 8}, to: {transform: CubeTransform.Front, location: 8}}
             ],
             // Rotate X moves
-            [],
+            [
+            ],
             // Rotate Y moves
-            [], 
+            [
+            ], 
             // Rotate Z moves
             [],
             // Middle moves
-            [],
+            [
+                {from: {transform: CubeTransform.Front, location: 1}, to: {transform: CubeTransform.Down, location: 1}},
+                {from: {transform: CubeTransform.Front, location: 4}, to: {transform: CubeTransform.Down, location: 4}},
+                {from: {transform: CubeTransform.Front, location: 7}, to: {transform: CubeTransform.Down, location: 7}},
+                {from: {transform: CubeTransform.Down, location: 1}, to: {transform: CubeTransform.Back, location: 7}},
+                {from: {transform: CubeTransform.Down, location: 4}, to: {transform: CubeTransform.Back, location: 4}},
+                {from: {transform: CubeTransform.Down, location: 7}, to: {transform: CubeTransform.Back, location: 1}},
+                {from: {transform: CubeTransform.Back, location: 1}, to: {transform: CubeTransform.Up, location: 7}},
+                {from: {transform: CubeTransform.Back, location: 4}, to: {transform: CubeTransform.Up, location: 4}},
+                {from: {transform: CubeTransform.Back, location: 7}, to: {transform: CubeTransform.Up, location: 1}},
+                {from: {transform: CubeTransform.Up, location: 1}, to: {transform: CubeTransform.Front, location: 1}},
+                {from: {transform: CubeTransform.Up, location: 4}, to: {transform: CubeTransform.Front, location: 4}},
+                {from: {transform: CubeTransform.Up, location: 7}, to: {transform: CubeTransform.Front, location: 7}}
+            ],
             // Equator moves
-            [],
+            [
+                {from: {transform: CubeTransform.Front, location: 3}, to: {transform: CubeTransform.Right, location: 3}},
+                {from: {transform: CubeTransform.Front, location: 4}, to: {transform: CubeTransform.Right, location: 4}},
+                {from: {transform: CubeTransform.Front, location: 5}, to: {transform: CubeTransform.Right, location: 5}},
+                {from: {transform: CubeTransform.Right, location: 3}, to: {transform: CubeTransform.Back, location: 3}},
+                {from: {transform: CubeTransform.Right, location: 4}, to: {transform: CubeTransform.Back, location: 4}},
+                {from: {transform: CubeTransform.Right, location: 5}, to: {transform: CubeTransform.Back, location: 5}},
+                {from: {transform: CubeTransform.Back, location: 3}, to: {transform: CubeTransform.Left, location: 3}},
+                {from: {transform: CubeTransform.Back, location: 4}, to: {transform: CubeTransform.Left, location: 4}},
+                {from: {transform: CubeTransform.Back, location: 5}, to: {transform: CubeTransform.Left, location: 5}},
+                {from: {transform: CubeTransform.Left, location: 3}, to: {transform: CubeTransform.Front, location: 3}},
+                {from: {transform: CubeTransform.Left, location: 4}, to: {transform: CubeTransform.Front, location: 4}},
+                {from: {transform: CubeTransform.Left, location: 5}, to: {transform: CubeTransform.Front, location: 5}}
+            ],
             // Standing moves
-            []
+            [
+                {from: {transform: CubeTransform.Up, location: 3}, to: {transform: CubeTransform.Right, location: 1}},
+                {from: {transform: CubeTransform.Up, location: 4}, to: {transform: CubeTransform.Right, location: 4}},
+                {from: {transform: CubeTransform.Up, location: 5}, to: {transform: CubeTransform.Right, location: 7}},
+                {from: {transform: CubeTransform.Right, location: 1}, to: {transform: CubeTransform.Down, location: 5}},
+                {from: {transform: CubeTransform.Right, location: 4}, to: {transform: CubeTransform.Down, location: 4}},
+                {from: {transform: CubeTransform.Right, location: 7}, to: {transform: CubeTransform.Down, location: 3}},
+                {from: {transform: CubeTransform.Down, location: 3}, to: {transform: CubeTransform.Left, location: 1}},
+                {from: {transform: CubeTransform.Down, location: 4}, to: {transform: CubeTransform.Left, location: 4}},
+                {from: {transform: CubeTransform.Down, location: 5}, to: {transform: CubeTransform.Left, location: 7}},
+                {from: {transform: CubeTransform.Left, location: 1}, to: {transform: CubeTransform.Up, location: 5}},
+                {from: {transform: CubeTransform.Left, location: 4}, to: {transform: CubeTransform.Up, location: 4}},
+                {from: {transform: CubeTransform.Left, location: 7}, to: {transform: CubeTransform.Up, location: 3}},
+            ]
         ],
         [[]]  // 4x4, advanced, or revenge cube
     ]
@@ -375,6 +416,7 @@ namespace cube {
         ['Solve', ' '],
         ['Reset', ' ']
     ]
+    const NUM_SCRAMBLES = 20
     export const ROTATE_NAMES: string[] = [
         'x',
         'y',
@@ -486,7 +528,7 @@ namespace cube {
             return this._spriteFace[face]
         }   // faceSprite()
 
-        public move(move: CubeMove): void {
+        public move(m: CubeMove): void {
             let currCube: CubeFace[] = this._cubes[this._currCube]
             let newCube: CubeFace[] = this._cubes[1 - this._currCube]
 
@@ -497,15 +539,43 @@ namespace cube {
                 }   // for (i)
             }   // for (f)
 
-            for (let t of CUBE_MOVES[this._size][move.transform]) {
-                if (move.inverse) {
-                    newCube[t.from.transform].locations[t.from.location].color =
-                        currCube[t.to.transform].locations[t.to.location].color
-                } else {
-                    newCube[t.to.transform].locations[t.to.location].color =
-                        currCube[t.from.transform].locations[t.from.location].color
-                }   // if (move.inverse)
-            }   // for (t)
+            // Rotations and shuffle are just move combinations; handle separately
+            switch (m.transform) {
+                case CubeTransform.RotateX:
+                    // Same as L' M' R
+                    this.transformCube({transform: CubeTransform.Left, inverse: !m.inverse}, currCube, newCube)
+                    this.transformCube({transform: CubeTransform.Middle, inverse: !m.inverse}, currCube, newCube)
+                    this.transformCube({transform: CubeTransform.Right, inverse: m.inverse}, currCube, newCube)
+                    break
+
+                case CubeTransform.RotateY:
+                    // Same as U E' D'
+                    this.transformCube({transform: CubeTransform.Up, inverse: m.inverse}, currCube, newCube)
+                    this.transformCube({transform: CubeTransform.Equator, inverse: !m.inverse}, currCube, newCube)
+                    this.transformCube({transform: CubeTransform.Down, inverse: !m.inverse}, currCube, newCube)
+                    break
+
+                case CubeTransform.RotateZ:
+                    // Same as F S B'
+                    this.transformCube({transform: CubeTransform.Front, inverse: m.inverse}, currCube, newCube)
+                    this.transformCube({transform: CubeTransform.Standing, inverse: m.inverse}, currCube, newCube)
+                    this.transformCube({transform: CubeTransform.Back, inverse: !m.inverse}, currCube, newCube)
+                    break
+
+                case CubeTransform.Shuffle:
+                    for (let i: number = 0; i < NUM_SCRAMBLES; i++) {
+                        this.transformCube(
+                            {transform: randint(CubeTransform.Front, CubeTransform.Standing),
+                            inverse: Math.percentChance(50)},
+                            currCube, newCube
+                        )
+                    }   // for (i)
+                    break
+
+                default:
+                    this.transformCube(m, currCube, newCube)
+                    break
+            }   // switch (move.transform)
 
             this._currCube = 1 - this._currCube
             this.drawCube({transform: CubeTransform.None, inverse: false})
@@ -532,6 +602,18 @@ namespace cube {
                 floodScanline(img, x, y, c)
             }   // for (i)
         }   // drawFace()
+
+        private transformCube(m: CubeMove, src: CubeFace[], dest: CubeFace[]): void {
+            for (let t of CUBE_MOVES[this._size][m.transform]) {
+                if (m.inverse) {
+                    dest[t.from.transform].locations[t.from.location].color =
+                        src[t.to.transform].locations[t.to.location].color
+                } else {
+                    dest[t.to.transform].locations[t.to.location].color =
+                        src[t.from.transform].locations[t.from.location].color
+                }   // if (move.inverse)
+            }   // for (t)
+        }   // transformCube()
     }   // class Cube
 
     export function buildCube(size: number): Cube {
