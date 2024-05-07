@@ -619,7 +619,7 @@ namespace cube {
     export function buildCube(size: number): Cube {
         let toReturn: Cube = new Cube(size)
         return toReturn
-    }   // buildCube()
+    }   // buildCube(4)
 
     // https://lodev.org/cgtutor/floodfill.html
     function floodScanline(img: Image, x: number, y: number, c: number) {
