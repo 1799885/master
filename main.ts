@@ -9,7 +9,7 @@ let currMove: CubeTransform = CubeTransform.Front
 let moves: string = ''
 writeCurrMove()
 
-let myCube: cube.Cube = cube.buildCube(3)
+let myCube: cube.Cube = cube.buildCube(4)
 
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     currMove += -1
