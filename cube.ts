@@ -615,9 +615,8 @@ namespace cube {
             }   // for (t)
         }   // transformCube()
     }   // class Cube
-
     export function buildCube(size: number): Cube {
-        let toReturn: Cube = new Cube(size)
+        let toReturn: Cube = new Cube(4)
         return toReturn
     }   // buildCube()
 
