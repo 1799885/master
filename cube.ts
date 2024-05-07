@@ -3,7 +3,7 @@
  */
 
 /*
-// Standard palette
+// Adanced  palette
 enum Color {
     Transparent, // 0
     White, // 1 = RGB(255, 255, 255)
