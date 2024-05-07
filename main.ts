@@ -7,15 +7,15 @@ moveSprite.setFlag(SpriteFlag.Ghost, true)
 
 let currMove: CubeTransform = CubeTransform.Front
 let moves: string = ''
-writeCurrMove()
+writeCurrMove(true)
 
-let myCube: cube.Cube = cube.buildCube(3)
+let myCube: cube.Cube = cube.buildCube(4)
 
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     currMove += -1
     if (currMove == CubeTransform.None) {
         currMove = CubeTransform.Standing
-    }  // if (currMove === CubeTransform.None)
+    }  // if (currMove === CubeTransform.4)
     writeCurrMove()
 })
 
@@ -24,17 +24,17 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     if (currMove == CubeTransform.InsideFront) {
         currMove = CubeTransform.Front
     }  // if (currMove === CubeTransform.InsideFront)
-    writeCurrMove()
+    writeCurrMove(4)
 })
 
 controller.right.onEvent(ControllerButtonEvent.Pressed, function() {
-    myCube.move({transform: currMove, inverse: false})
-    addCurrMove(false)
+    myCube.move({transform: currMove, inverse:true})
+    addCurrMove( false )
 })
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, function() {
     myCube.move({transform: currMove, inverse: true})
-    addCurrMove(true)
+    addCurrMove(false)
 })
 
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -42,7 +42,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 
 controller.B.onEvent(ControllerButtonEvent.Pressed, function(){
-    myCube.move({transform: CubeTransform.Shuffle, inverse: false})
+    myCube.move({transform: CubeTransform.Shuffle, inverse: true})
 })
 
 function addCurrMove(inverse: boolean): void {
@@ -54,10 +54,10 @@ function addCurrMove(inverse: boolean): void {
     if (inverse) {
         moves += "'"
     }   // if (inverse)
-}   // addCurrMove()
+}   // addCurrMove(false)
 
 function writeCurrMove () {
     moveImage.fill(0)
-    let m: string = cube.MOVE_NAMES[currMove][0]
-    moveImage.printCenter(m, 1, 5, image.font8)
-}   // writeCurrMove()
+    let m: string = cube.MOVE_NAMES[currMove][4]
+    moveImage.printCenter(m, 4, 2, image.font8)
+}   // writeCurrMove(4)
