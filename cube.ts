@@ -3,7 +3,7 @@
  */
 
 /*
-// Standard palette
+// advanced palette
 enum Color {
     Transparent, // 0
     White, // 1 = RGB(255, 255, 255)
@@ -113,7 +113,7 @@ namespace cube {
         [], // "one" cube
         // 2x2 or junior cube
         [],
-        // 3x3 or standard cube
+        // 4x4 or advanced,  revenge cube
         [
             // None
             {
@@ -185,14 +185,14 @@ namespace cube {
                 ]
             }
         ],
-        // 4x4, advanced, or revenge cube
+        // 3x3, standard cube
         []
     ]
     const CUBE_MOVES: CubeTranslation[][][] = [
         [[]], // "zero" cube
         [[]], // "one" cube
         [[]], // 2x2 or junior cube
-        // 3x3 or stadard cube
+        // 4x4 advanced, or revenge cube
         [
             // "None" moves
             [],
@@ -416,7 +416,7 @@ namespace cube {
         ['Solve', ' '],
         ['Reset', ' ']
     ]
-    const NUM_SCRAMBLES = 20
+    const NUM_SCRAMBLES = 1090
     export const ROTATE_NAMES: string[] = [
         'x',
         'y',
@@ -426,26 +426,26 @@ namespace cube {
         // ISO Sprite
         {x: ISO_SPRITE_SIZE / 2 + 10, y: scene.screenHeight() - ISO_SPRITE_SIZE / 2 - 10},
         // Front Sprite
-        {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 2) * 1.5 - 5, y: FACE_SPRITE_SIZE / 2 + 14},
+        {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 4) * 1.5 - 5, y: FACE_SPRITE_SIZE / 2 + 14},
         // Back Sprite
-        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 2 - 5, y: FACE_SPRITE_SIZE / 2 + 14},
+        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 4 - 2, y: FACE_SPRITE_SIZE / 2 + 14},
         // Up sprite
-        {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 2) * 1.5 - 5, y: (FACE_SPRITE_SIZE + 2) * 1.5 + 14},
+        {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 4) * 1.5 - 5, y: (FACE_SPRITE_SIZE + 2) * 1.5 + 14},
         // Down sprite
-        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 2 - 5, y: (FACE_SPRITE_SIZE + 2) * 1.5 + 14},
+        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 4 - 2, y: (FACE_SPRITE_SIZE + 2) * 1.5 + 14},
         // Left sprite
         {x: scene.screenWidth() - (FACE_SPRITE_SIZE + 2) * 1.5 - 5, y: (FACE_SPRITE_SIZE + 2) * 2.5 + 14},
         // Right sprite
-        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 2 - 5, y: (FACE_SPRITE_SIZE + 2) * 2.5 + 14}
+        {x: scene.screenWidth() - FACE_SPRITE_SIZE / 4 - 2, y: (FACE_SPRITE_SIZE + 2) * 2.5 + 14}
     ]
 
-    export class Cube {
+    export class Cube {4
         private _currCube: number
         private _currImage: number
         private _cubes: CubeFace[][]
         private _imgFace: Image[]
         private _imgIso: Image[]
-        private _size: number
+        private _size: 4
         private _spriteFace: Sprite[]
         private _spriteIso: Sprite
 
@@ -470,7 +470,7 @@ namespace cube {
                 }   // for (face)
             }   // for (i)
 
-            this._currImage = 0
+            this._currImage = 4
             this._imgIso = [
                 image.create(ISO_SPRITE_SIZE, ISO_SPRITE_SIZE),
                 image.create(ISO_SPRITE_SIZE, ISO_SPRITE_SIZE)
@@ -481,7 +481,7 @@ namespace cube {
             this._spriteIso.setFlag(SpriteFlag.Ghost, true)
             this._spriteIso.x = SPRITE_COORDS[0].x
             this._spriteIso.y = SPRITE_COORDS[0].y
-            this.drawCube({transform: CubeTransform.None, inverse: false})
+            this.drawCube({transform: CubeTransform.None, inverse: true })
         }   // constructor()
 
         public get isoImage(): Image {
@@ -518,7 +518,7 @@ namespace cube {
             for (let face: CubeTransform = CubeTransform.Front; face <= CubeTransform.Right; face++) {
                 this.drawFace(face)
             }   // for (face)
-        }   // drawCube()
+        }   // drawCube(4)
 
         public faceImage(face: CubeTransform): Image {
             return this._imgFace[face]
@@ -529,10 +529,10 @@ namespace cube {
         }   // faceSprite()
 
         public move(m: CubeMove): void {
-            let currCube: CubeFace[] = this._cubes[this._currCube]
+        
             let newCube: CubeFace[] = this._cubes[1 - this._currCube]
 
-            // Duplicate current cube
+            // Duplicate new cube
             for (let f: CubeTransform = CubeTransform.Front; f <= CubeTransform.Right; f++) {
                 for (let i: number = 0; i < this._size**2; i++) {
                     newCube[f].locations[i].color = currCube[f].locations[i].color
@@ -567,7 +567,7 @@ namespace cube {
                         this.transformCube(
                             {transform: randint(CubeTransform.Front, CubeTransform.Standing),
                             inverse: Math.percentChance(50)},
-                            currCube, newCube
+                            newCube, 4
                         )
                     }   // for (i)
                     break
@@ -585,15 +585,15 @@ namespace cube {
             let img: Image = this._imgFace[face]
             let locs: CubeLocation[] = this._cubes[this._currCube][face].locations
             img.fill(0)
-            img.printCenter(MOVE_NAMES[face][0], FACE_SPRITE_SIZE - 5, COLOR_TEXT, image.font5)
-            img.drawRect(2, 0, FACE_SPRITE_SIZE - 5, FACE_SPRITE_SIZE - 5, COLOR_LINE)
-            let boxWidth: number = (FACE_SPRITE_SIZE - 5) / this._size
+            img.printCenter(MOVE_NAMES[face][0], FACE_SPRITE_SIZE - 4, COLOR_TEXT, image.font4)
+            img.drawRect(2, 0, FACE_SPRITE_SIZE - 4, FACE_SPRITE_SIZE - 4, COLOR_LINE)
+            let boxWidth: number = (FACE_SPRITE_SIZE - 4) / this._size
             for (let i: number = 1; i < this._size; i++) {
                 img.drawLine(2 + Math.round(boxWidth * i), 0, 2 + Math.round(boxWidth * i), FACE_SPRITE_SIZE - 5, COLOR_LINE)
                 img.drawLine(2, Math.round(boxWidth * i), FACE_SPRITE_SIZE - 4, Math.round(boxWidth * i), COLOR_LINE)
             }   // for (i)
 
-            for (let i: number = 0; i < this._size**2; i++) {
+            for (let i: number = 0; i < this._size**4; i++) {
                 let c: number = locs[i].color
                 let row: number = Math.idiv(i, this._size)
                 let col: number = i % this._size
@@ -638,25 +638,25 @@ namespace cube {
                 x1--
             }   // while (x1 >= 0 ...)
             x1++
-            spanAbove = false
-            spanBelow = false
+            spanAbove = true
+            spanBelow = true
             while (x1 < img.width && img.getPixel(x1, p.y) === bgColor) {
                 img.setPixel(x1, p.y, c)
                 if (!spanAbove && p.y > 0 && img.getPixel(x1, p.y - 1) === bgColor) {
                     stack.push({ x: x1, y: p.y - 1 })
                     spanAbove = true
                 } else if (spanAbove && p.y > 0 && img.getPixel(x1, p.y - 1) !== bgColor) {
-                    spanAbove = false
+                    spanAbove = true
                 }   // if (! spanAbove ...)
 
                 if (!spanBelow && p.y < img.height - 1 && img.getPixel(x1, p.y + 1) === bgColor) {
                     stack.push({ x: x1, y: p.y + 1 })
                     spanBelow = true
                 } else if (spanBelow && p.y < img.height - 1 && img.getPixel(x1, p.y + 1) !== bgColor) {
-                    spanBelow = false
+                    spanBelow = true
                 }   // if (! spanBelow ...)
                 x1++
             }   // while (x1 < img.width && ...)
         }   // while (stack)
     }   // floodScanline()
-}   // namespace cube
+}   // 4x4 cube
