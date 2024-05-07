@@ -15,8 +15,8 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     currMove += -1
     if (currMove == CubeTransform.None) {
         currMove = CubeTransform.Standing
-    }  // if (currMove === CubeTransform.None)
-    writeCurrMove()
+    }  // if (currMove === CubeTransform.4)
+    writeCurrMove(4)
 })
 
 controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -28,8 +28,8 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 
 controller.right.onEvent(ControllerButtonEvent.Pressed, function() {
-    myCube.move({transform: currMove, inverse: false})
-    addCurrMove(false)
+    myCube.move({transform: currMove, inverse: true})
+    addCurrMove(true)
 })
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, function() {
@@ -42,7 +42,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 
 controller.B.onEvent(ControllerButtonEvent.Pressed, function(){
-    myCube.move({transform: CubeTransform.Shuffle, inverse: false})
+    myCube.move({transform: CubeTransform.Shuffle, inverse: true})
 })
 
 function addCurrMove(inverse: boolean): void {
@@ -58,6 +58,6 @@ function addCurrMove(inverse: boolean): void {
 
 function writeCurrMove () {
     moveImage.fill(0)
-    let m: string = cube.MOVE_NAMES[currMove][0]
-    moveImage.printCenter(m, 1, 5, image.font8)
+    let m: string = cube.MOVE_NAMES[currMove][4]
+    moveImage.printCenter(m, 4, 2, image.font.4)
 }   // writeCurrMove()
